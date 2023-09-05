@@ -4,6 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+sqlalchemy = "*"
+alembic = "*"
+click = "*"
+tqdm = "*"
+rich = "*"
+prompt-toolkit = "*"
 
 [dev-packages]
 
