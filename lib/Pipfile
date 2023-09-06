@@ -10,6 +10,7 @@ click = "*"
 tqdm = "*"
 rich = "*"
 prompt-toolkit = "*"
+bcrypt = "*"
 
 [dev-packages]
 
