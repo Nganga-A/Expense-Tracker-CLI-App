@@ -58,7 +58,7 @@ class Expense(Base):
     owner = relationship("User", back_populates="expenses")
     category = relationship("Category", back_populates="expenses")
 
-    def __init__(self, date:date, description:str, amount:float)
+    def __init__(self, date:date, description:str, amount:float):
         self.date = date
         self.description = description
         self.amount = amount
