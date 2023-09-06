@@ -14,7 +14,7 @@ session = Session()
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String, unique=True, index=True)
     # Establish one-to-many relationship with Expense
     expenses = relationship("Expense", back_populates="owner")
@@ -30,7 +30,7 @@ class User(Base):
 class Category(Base):
     __tablename__ = "categories"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True ,autoincrement=True)
     name = Column(String, unique=True, index=True)
     # Establish one-to-many relationship with Expense
     expenses = relationship("Expense", back_populates="category")
@@ -45,7 +45,7 @@ class Category(Base):
 class Expense(Base):
     __tablename__ = "expenses"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     date = Column(Date, index=True)
     description = Column(String)
     amount = Column(Float)
@@ -70,7 +70,7 @@ class Expense(Base):
 class Budget(Base):
     __tablename__ = "budgets"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     category_id = Column(Integer, ForeignKey("categories.id"))
     amount = Column(Float)
 
