@@ -32,56 +32,98 @@ def create_user(username, password):
 
 # Command to create a new budget
 @expense_tracker.command()
-@click.option('--user-id', prompt='User ID', help='User ID')
-@click.option('--category-id', prompt='Category ID', help='Category ID')
+@click.option('--username', prompt='Username', help='User Username')
+@click.option('--category-name', prompt='Category Name', help='Category Name')
 @click.option('--amount', prompt='Budget Amount', help='Budget Amount')
-def create_budget(user_id, category_id, amount):
+def create_budget(username, category_name, amount):
     db = Session()  # Create a SQLAlchemy session
-    budget = BudgetClassMethods.create_budget(db, user_id, category_id, float(amount))
-    click.echo(f"Budget entry with ID {budget.id} created successfully.")
+    
+    # Retrieve the user by username
+    user = UserClassMethods.get_user_by_username(db, username)
+    
+    if user:
+        # Retrieve the category by name or create it if it doesn't exist
+        category = CategoryClassMethods.get_category_by_name(db, category_name)
+        if not category:
+            category = CategoryClassMethods.create_category(db, category_name)
+
+        # Create the budget with the user and category
+        budget = BudgetClassMethods.create_budget(db, user.id, category.id, float(amount))
+        click.echo(f"Budget entry with name {category_name} created successfully.")
+    else:
+        click.echo(f"User with username '{username}' not found.")
 
 
 # Command to list all budgets for a user
 @expense_tracker.command()
-@click.option('--user-id', prompt='User ID', help='User ID')
-def list_budgets(user_id):
+@click.option('--username', prompt='Username', help='User username')
+def list_budgets(username):
     db = Session()  # Create a SQLAlchemy session
-    budgets = BudgetClassMethods.get_budgets_by_user(db, int(user_id))
     
-    if budgets:
-        click.echo("Budgets for User:")
-        for budget in budgets:
-            click.echo(f"ID: {budget.id}, Category: {BudgetClassMethods.get_category_name_for_budget(db, budget.id)}, Amount: {budget.amount}")
+    # Retrieve the user by username
+    user = UserClassMethods.get_user_by_username(db, username)
+    
+    if user:
+        budgets = BudgetClassMethods.get_budgets_by_user(db, user.id)
+        
+        if budgets:
+            click.echo(f"Budgets for User {username}:")
+            for budget in budgets:
+                category_name = BudgetClassMethods.get_category_name_for_budget(db, budget.id)
+                click.echo(f"Category: {category_name}, Amount: {budget.amount}")
+        else:
+            click.echo(f"No budgets found for User {username}.")
     else:
-        click.echo("No budgets found for the user.")
+        click.echo(f"User with username '{username}' not found.")
 
 
 # Command to create a new expense
 @expense_tracker.command()
-@click.option('--user-id', prompt='User ID', help='User ID')
-@click.option('--category-id', prompt='Category ID', help='Category ID')
+@click.option('--username', prompt='Username', help='User username')
+@click.option('--category-name', prompt='Category Name', help='Category Name')
 @click.option('--date', prompt='Expense Date (YYYY-MM-DD)', help='Expense Date (YYYY-MM-DD)')
 @click.option('--description', prompt='Description', help='Expense Description')
 @click.option('--amount', prompt='Expense Amount', help='Expense Amount')
-def create_expense(user_id, category_id, date, description, amount):
+def create_expense(username, category_name, date, description, amount):
     db = Session()  # Create a SQLAlchemy session
-    expense = ExpenseClassMethods.create_expense(db, user_id, category_id, date, description, float(amount))
-    click.echo(f"Expense entry with ID {expense.id} created successfully.")
+    
+    # Retrieve the user by username
+    user = UserClassMethods.get_user_by_username(db, username)
+    
+    if user:
+        # Retrieve the category by name or create it if it doesn't exist
+        category = CategoryClassMethods.get_category_by_name(db, category_name)
+        if not category:
+            category = CategoryClassMethods.create_category(db, category_name)
+
+        # Create the expense with the user and category
+        expense = ExpenseClassMethods.create_expense(db, user.id, category.id, date, description, float(amount))
+        click.echo(f"Expense entry with name {category_name} created successfully.")
+    else:
+        click.echo(f"User with username '{username}' not found.")
 
 
 # Command to list all expenses for a user
 @expense_tracker.command()
-@click.option('--user-id', prompt='User ID', help='User ID')
-def list_expenses(user_id):
+@click.option('--username', prompt='Username', help='User username')
+def list_expenses(username):
     db = Session()  # Create a SQLAlchemy session
-    expenses = ExpenseClassMethods.get_expenses_by_user(db, int(user_id))
     
-    if expenses:
-        click.echo("Expenses for User:")
-        for expense in expenses:
-            click.echo(f"ID: {expense.id}, Category: {ExpenseClassMethods.get_category_name_for_expense(db, expense.id)}, Date: {expense.date}, Description: {expense.description}, Amount: {expense.amount}")
+    # Retrieve the user by username
+    user = UserClassMethods.get_user_by_username(db, username)
+    
+    if user:
+        expenses = ExpenseClassMethods.get_expenses_by_user(db, user.id)
+        
+        if expenses:
+            click.echo(f"Expenses for User {username}:")
+            for expense in expenses:
+                category_name = ExpenseClassMethods.get_category_name_for_expense(db, expense.id)
+                click.echo(f"Category: {category_name}, Date: {expense.date}, Description: {expense.description}, Amount: {expense.amount}")
+        else:
+            click.echo(f"No expenses found for User {username}.")
     else:
-        click.echo("No expenses found for this user.")
+        click.echo(f"User with username '{username}' not found.")
 
 
 # Command to create a new category
@@ -109,137 +151,115 @@ def list_categories():
 
 # Command to compare a user's budgets and expenses for all categories
 @expense_tracker.command()
-@click.option('--user-id', prompt='User ID', help='User ID')
-def compare_user_budgets_expenses(user_id):
+@click.option('--username', prompt='Username', help='User username')
+def compare_user_budgets_expenses(username):
     db = Session()  # Create a SQLAlchemy session
+    
+    # Retrieve the user by username
+    user = UserClassMethods.get_user_by_username(db, username)
+    
+    if user:
+        budgets = BudgetClassMethods.get_budgets_by_user(db, user.id)
+        expenses = ExpenseClassMethods.get_expenses_by_user(db, user.id)
 
-    # Retrieve the user's budgets and expenses
-    budgets = BudgetClassMethods.get_budgets_by_user(db, int(user_id))
-    expenses = ExpenseClassMethods.get_expenses_by_user(db, int(user_id))
+        # Create a dictionary to store the summary for each category
+        category_summary = {}
 
-    # Create a dictionary to store the summary for each category
-    category_summary = {}
+        # Group budgets by category and calculate the total budgeted amount
+        for budget in budgets:
+            category_name = BudgetClassMethods.get_category_name_for_budget(db, budget.id)
+            if category_name in category_summary:
+                category_summary[category_name]["budgets"].append(budget.amount)
+            else:
+                category_summary[category_name] = {"budgets": [budget.amount], "expenses": []}
 
-    # Group budgets by category and calculate the total budgeted amount
-    for budget in budgets:
-        category_name = BudgetClassMethods.get_category_name_for_budget(db, budget.id)
-        if category_name in category_summary:
-            category_summary[category_name]["budgets"].append(budget.amount)
-        else:
-            category_summary[category_name] = {"budgets": [budget.amount], "expenses": []}
+        # Group expenses by category and calculate the total expenses amount
+        for expense in expenses:
+            category_name = ExpenseClassMethods.get_category_name_for_expense(db, expense.id)
+            if category_name in category_summary:
+                category_summary[category_name]["expenses"].append(expense.amount)
+            else:
+                category_summary[category_name] = {"budgets": [], "expenses": [expense.amount]}
 
-    # Group expenses by category and calculate the total expenses amount
-    for expense in expenses:
-        category_name = ExpenseClassMethods.get_category_name_for_expense(db, expense.id)
-        if category_name in category_summary:
-            category_summary[category_name]["expenses"].append(expense.amount)
-        else:
-            category_summary[category_name] = {"budgets": [], "expenses": [expense.amount]}
+        # Calculate and display the summary for each category
+        for category, data in category_summary.items():
+            total_budget = sum(data["budgets"])
+            total_expenses = sum(data["expenses"])
+            difference = total_budget - total_expenses
 
-    # Calculate and display the summary for each category
-    for category, data in category_summary.items():
-        total_budget = sum(data["budgets"])
-        total_expenses = sum(data["expenses"])
-        difference = total_budget - total_expenses
-
-        click.echo(f"Category: {category}")
-        click.echo(f"Total Budgeted Amount: {total_budget}")
-        click.echo(f"Total Expenses Amount: {total_expenses}")
-        click.echo(f"Difference/Savings (Budget - Expenses): {difference}")
-        click.echo("-------------------------------------------------------")
+            click.echo(f"Category: {category}")
+            click.echo(f"Total Budgeted Amount: {total_budget}")
+            click.echo(f"Total Expenses Amount: {total_expenses}")
+            click.echo(f"Difference/Savings (Budget - Expenses): {difference}")
+            click.echo("-------------------------------------------------------")
+    else:
+        click.echo(f"User with username '{username}' not found.")
 
 
 # Command to generate a report for a user
 @expense_tracker.command()
-@click.option('--user-id', prompt='User ID', help='User ID')
-def generate_user_report(user_id):
+@click.option('--username', prompt='Username', help='User username')
+def generate_user_report(username):
     db = Session()  # Create a SQLAlchemy session
+    
+    # Retrieve the user by username
+    user = UserClassMethods.get_user_by_username(db, username)
+    
+    if user:
+        # Retrieve the user's name
+        user_name = user.username
 
-    # Retrieve the user's name
-    user = UserClassMethods.get_user_by_id(db, int(user_id))
-    user_name = user.username if user else "User Not Found"
+        budgets = BudgetClassMethods.get_budgets_by_user(db, user.id)
+        expenses = ExpenseClassMethods.get_expenses_by_user(db, user.id)
 
-    # Retrieve the user's budgets and expenses
-    budgets = BudgetClassMethods.get_budgets_by_user(db, int(user_id))
-    expenses = ExpenseClassMethods.get_expenses_by_user(db, int(user_id))
+        # Create a set to store unique category names
+        category_names = set()
 
-    # Create a set to store unique category names
-    category_names = set()
+        # Create a dictionary to group budgets and expenses by category
+        budget_expense_summary = {}
 
-    # Create a dictionary to group budgets and expenses by category
-    budget_expense_summary = {}
+        # Group budgets by category
+        for budget in budgets:
+            category_name = BudgetClassMethods.get_category_name_for_budget(db, budget.id)
+            category_names.add(category_name)
+            if category_name in budget_expense_summary:
+                budget_expense_summary[category_name]["budgets"].append(budget.amount)
+            else:
+                budget_expense_summary[category_name] = {"budgets": [budget.amount], "expenses": []}
 
-    # Group budgets by category
-    for budget in budgets:
-        category_name = BudgetClassMethods.get_category_name_for_budget(db, budget.id)
-        category_names.add(category_name)
-        if category_name in budget_expense_summary:
-            budget_expense_summary[category_name]["budgets"].append(budget.amount)
-        else:
-            budget_expense_summary[category_name] = {"budgets": [budget.amount], "expenses": []}
+        # Group expenses by category
+        for expense in expenses:
+            category_name = ExpenseClassMethods.get_category_name_for_expense(db, expense.id)
+            category_names.add(category_name)
+            if category_name in budget_expense_summary:
+                budget_expense_summary[category_name]["expenses"].append(expense.amount)
+            else:
+                budget_expense_summary[category_name] = {"budgets": [], "expenses": [expense.amount]}
 
-    # Group expenses by category
-    for expense in expenses:
-        category_name = ExpenseClassMethods.get_category_name_for_expense(db, expense.id)
-        category_names.add(category_name)
-        if category_name in budget_expense_summary:
-            budget_expense_summary[category_name]["expenses"].append(expense.amount)
-        else:
-            budget_expense_summary[category_name] = {"budgets": [], "expenses": [expense.amount]}
+        # Display the user's name
+        click.echo(f"User Name: {user_name}")
 
-    # Display the user's name
-    click.echo(f"User Name: {user_name}")
+        # Display the list of categories
+        click.echo("Categories:")
+        for category_name in category_names:
+            click.echo(f"- {category_name}")
 
-    # Display the list of categories
-    click.echo("Categories:")
-    for category_name in category_names:
-        click.echo(f"- {category_name}")
+        # Display the report for each category
+        for category, data in budget_expense_summary.items():
+            total_budget = sum(data["budgets"])
+            total_expenses = sum(data["expenses"])
+            difference = total_budget - total_expenses
 
-    # Display the report for each category
-    for category, data in budget_expense_summary.items():
-        total_budget = sum(data["budgets"])
-        total_expenses = sum(data["expenses"])
-        click.echo(f"\nCategory: {category}")
-        click.echo(f"Total Budgeted Amount: {total_budget}")
-        click.echo(f"Total Expenses Amount: {total_expenses}")
-
+            click.echo(f"\nCategory: {category}")
+            click.echo(f"Total Budgeted Amount: {total_budget}")
+            click.echo(f"Total Expenses Amount: {total_expenses}")
+            click.echo(f"Difference/Savings (Budget - Expenses): {difference}")
+    else:
+        click.echo(f"User with username '{username}' not found.")
 
 
 if __name__ == '__main__':
     expense_tracker()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
