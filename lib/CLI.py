@@ -4,7 +4,8 @@ from database import create_database  # Import your database setup function
 from users import UserClassMethods
 from budgets import BudgetClassMethods
 from expenses import ExpenseClassMethods
-from categories import CategoryClassMethods
+from categories import CategoryClassMethods 
+
 
 
 # Create a Click group for your CLI commands

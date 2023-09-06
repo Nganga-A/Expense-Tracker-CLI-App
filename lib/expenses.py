@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from models import Expense
 from datetime import datetime
-from categories import get_category_by_name
+from categories import CategoryClassMethods
 
 class ExpenseClassMethods:
     @classmethod
@@ -68,7 +68,7 @@ class ExpenseClassMethods:
         expense = db.query(Expense).filter(Expense.id == expense_id).first()
         
         if expense:
-            category = get_category_by_name(db, expense.category.name)
+            category = CategoryClassMethods.get_category_by_name(db, expense.category.name)
             return category.name if category else None
         else:
             return None

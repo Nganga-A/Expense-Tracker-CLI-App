@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import Budget
-from categories import get_category_by_name
+from categories import CategoryClassMethods
 
 
 class BudgetClassMethods:
@@ -49,7 +49,7 @@ class BudgetClassMethods:
         budget = db.query(Budget).filter(Budget.id == budget_id).first()
         
         if budget:
-            category = get_category_by_name(db, budget.category.name)
+            category = CategoryClassMethods.get_category_by_name(db, budget.category.name)
             return category.name if category else None
         else:
             return None
