@@ -55,6 +55,19 @@ class BudgetClassMethods:
             return None
 
 
+    @classmethod #Update the budget value of a certain category.
+    def update_budget_value(cls, db: Session, budget_id: int, new_amount: float):
+        budget = db.query(Budget).filter(Budget.id == budget_id).first()
+
+        if budget:
+            # Update the budget value with the new amount
+            budget.amount = new_amount
+            db.commit()
+            return "Budget value updated successfully."
+        else:
+            return "Budget entry not found. Update failed."
+
+
 
 
 
