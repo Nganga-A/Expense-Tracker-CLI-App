@@ -21,21 +21,17 @@ class UserClassMethods:
         return user
 
 
-
-
-
-
-
-
-
-
     @classmethod  #Retrieve a user by their ID.
     def get_user_by_id(cls, db: Session, user_id: int):
         return db.query(User).filter(User.id == user_id).first()
 
 
-    @classmethod  #Retrieve a user by their username.
-    def get_user_by_username(cls, db: Session, username: str):
+    # @classmethod  #Retrieve a user by their username.
+    # def get_user_by_username(cls, db: Session, username: str):
+    #     return db.query(User).filter(User.username == username).first()
+
+    @staticmethod
+    def get_user_by_username(db: Session, username: str):
         return db.query(User).filter(User.username == username).first()
 
 

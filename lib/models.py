@@ -11,6 +11,8 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -52,6 +54,7 @@ class Expense(Base):
     description = Column(String)
     amount = Column(Float)
     
+    
     # Foreign keys to establish relationships
     user_id = Column(Integer, ForeignKey("users.id"))
     category_id = Column(Integer, ForeignKey("categories.id"))
@@ -60,10 +63,12 @@ class Expense(Base):
     owner = relationship("User", back_populates="expenses")
     category = relationship("Category", back_populates="expenses")
 
-    def __init__(self, date:date, description:str, amount:float):
+    def __init__(self, user_id:int,category_id:int, date:date, description:str, amount:float):
         self.date = date
         self.description = description
         self.amount = amount
+        self.user_id = user_id
+        self.category_id = category_id
     
     def __repr__(self):
         return f"<Expense(id={self.id}, date={self.date}, description={self.description}, amount={self.amount})>"

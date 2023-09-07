@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
-
 import click
 from sqlalchemy.orm import Session
-
 from database import SessionLocal # Import your database setup function
 from users import UserClassMethods
 from budgets import BudgetClassMethods
 from expenses import ExpenseClassMethods
 from categories import CategoryClassMethods 
+from sqlalchemy.orm import Session
+from models import User, Budget, Expense  
+from datetime import datetime
 
 
 
@@ -63,7 +64,7 @@ def list_users():
             click.echo(f"Username: {user.username}")
     else:
         click.echo("No users found.")
-
+    
 
 # Command to create a new budget
 @expense_tracker.command()
@@ -71,7 +72,7 @@ def list_users():
 @click.option('--category-name', prompt='Category Name', help='Category Name')
 @click.option('--amount', prompt='Budget Amount', help='Budget Amount')
 def create_budget(username, category_name, amount):
-    db = Session()  # Create a SQLAlchemy session
+    db = SessionLocal()  # Create a SQLAlchemy session
     
     # Retrieve the user by username
     user = UserClassMethods.get_user_by_username(db, username)
@@ -93,8 +94,9 @@ def create_budget(username, category_name, amount):
 @expense_tracker.command()
 @click.option('--username', prompt='Username', help='User username')
 def list_budgets(username):
-    db = Session()  # Create a SQLAlchemy session
-    
+    # Use the Session instance you created
+    db = SessionLocal()
+
     # Retrieve the user by username
     user = UserClassMethods.get_user_by_username(db, username)
     
@@ -112,6 +114,7 @@ def list_budgets(username):
         click.echo(f"User with username '{username}' not found.")
 
 
+
 # Command to create a new expense
 @expense_tracker.command()
 @click.option('--username', prompt='Username', help='User username')
@@ -120,19 +123,26 @@ def list_budgets(username):
 @click.option('--description', prompt='Description', help='Expense Description')
 @click.option('--amount', prompt='Expense Amount', help='Expense Amount')
 def create_expense(username, category_name, date, description, amount):
-    db = Session()  # Create a SQLAlchemy session
-    
+    db = SessionLocal()  # Create a SQLAlchemy session
+
     # Retrieve the user by username
     user = UserClassMethods.get_user_by_username(db, username)
-    
+
     if user:
         # Retrieve the category by name or create it if it doesn't exist
         category = CategoryClassMethods.get_category_by_name(db, category_name)
         if not category:
             category = CategoryClassMethods.create_category(db, category_name)
 
+        # Convert the date string to a Python date object
+        try:
+            expense_date = datetime.strptime(date, '%Y-%m-%d').date()
+        except ValueError:
+            click.echo("Invalid date format. Please use 'YYYY-MM-DD'.")
+            return
+
         # Create the expense with the user and category
-        expense = ExpenseClassMethods.create_expense(db, user.id, category.id, date, description, float(amount))
+        expense = ExpenseClassMethods.create_expense(db, user.id, category.id, expense_date, description, float(amount))
         click.echo(f"Expense entry with name {category_name} created successfully.")
     else:
         click.echo(f"User with username '{username}' not found.")
@@ -142,7 +152,7 @@ def create_expense(username, category_name, date, description, amount):
 @expense_tracker.command()
 @click.option('--username', prompt='Username', help='User username')
 def list_expenses(username):
-    db = Session()  # Create a SQLAlchemy session
+    db = SessionLocal()  # Create a SQLAlchemy session
     
     # Retrieve the user by username
     user = UserClassMethods.get_user_by_username(db, username)
@@ -165,7 +175,7 @@ def list_expenses(username):
 @expense_tracker.command()
 @click.option('--name', prompt='Category Name', help='Category Name')
 def create_category(name):
-    db = Session()  # Create a SQLAlchemy session
+    db = SessionLocal()  # Create a SQLAlchemy session
     category = CategoryClassMethods.create_category(db, name)
     click.echo(f"Category {category.name} created successfully.")
 
@@ -173,7 +183,7 @@ def create_category(name):
 # Command to list all categories
 @expense_tracker.command()
 def list_categories():
-    db = Session()  # Create a SQLAlchemy session
+    db = SessionLocal()  # Create a SQLAlchemy session
     categories = CategoryClassMethods.get_all_categories(db)
     
     if categories:

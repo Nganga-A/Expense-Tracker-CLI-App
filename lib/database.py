@@ -15,3 +15,8 @@ Base.metadata.create_all(engine)
 
 # Create a SessionLocal instance for use in your application
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+db = SessionLocal()
