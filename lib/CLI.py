@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
+
+
 import click
 from sqlalchemy.orm import Session
+
 from database import create_database  # Import your database setup function
 from users import UserClassMethods
 from budgets import BudgetClassMethods

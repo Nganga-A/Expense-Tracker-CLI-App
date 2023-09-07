@@ -4,14 +4,19 @@ import bcrypt
 from datetime import datetime
 
 class UserClassMethods:
-    @classmethod    #Create a user with a hashed password.
-    def create_user(cls, db: Session, username: str, password: bytes):
-        password_hash = bcrypt.hashpw(password, bcrypt.gensalt())
-        user = User(username=username, password_hash=password_hash)
 
+    @staticmethod
+    def create_user(db, username, password):
+        # Encode the password as bytes
+        password_bytes = password.encode('utf-8')
+
+        # Hash the password
+        password_hash = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+
+        # Create and return the user
+        user = User(username=username, password_hash=password_hash)
         db.add(user)
         db.commit()
-        db.refresh(user)
         return user
 
 

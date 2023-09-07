@@ -1,0 +1,3 @@
+# #!/bin/bash
+
+# pipenv run  /home/user/Development/code/phase3/Expense-Tracker-CLI-App/lib/CLI.py "$@"
