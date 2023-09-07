@@ -19,21 +19,14 @@ def expense_tracker():
     pass
 
 
-# Command to initialize the database
-@expense_tracker.command()
-def initdb():
-    create_database()  # Call function to create the database
-    click.echo("Expense Tracker database initialized.")
+# # Command to initialize the database
+# @expense_tracker.command()
+# def initdb():
+#     create_database()  # Call function to create the database
+#     click.echo("Expense Tracker database initialized.")
 
 
 # Command to create a new user
-# @expense_tracker.command()
-# @click.option('--username', prompt='Username', help='User username')
-# @click.option('--password', prompt='Password', hide_input=True, help='User password')
-# def create_user(username, password):
-#     db = Session()  # Create a SQLAlchemy session
-#     user = UserClassMethods.create_user(db, username, password)
-#     click.echo(f"User {user.username} created successfully.")
 @expense_tracker.command()
 def create_user():
     # Establish a database session
@@ -56,6 +49,20 @@ def create_user():
     finally:
         # Close the session
         db_session.close()
+
+
+# Command to list all users
+@expense_tracker.command()
+def list_users():
+    db = SessionLocal()  # Create a SQLAlchemy session
+    users = UserClassMethods.get_all_users(db)
+
+    if users:
+        click.echo("List of Users:")
+        for user in users:
+            click.echo(f"Username: {user.username}")
+    else:
+        click.echo("No users found.")
 
 
 # Command to create a new budget
@@ -289,8 +296,3 @@ def generate_user_report(username):
 if __name__ == '__main__':
     expense_tracker()
 
-
-
-
-if __name__ == '__main__':
-    expense_tracker()

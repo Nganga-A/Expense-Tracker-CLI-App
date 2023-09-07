@@ -3,6 +3,8 @@ from models import User, Budget, Expense
 import bcrypt
 from datetime import datetime
 
+
+
 class UserClassMethods:
     @staticmethod
     def create_user(db, username, password):
@@ -17,6 +19,14 @@ class UserClassMethods:
         db.add(user)
         db.commit()
         return user
+
+
+
+
+
+
+
+
 
 
     @classmethod  #Retrieve a user by their ID.
@@ -55,6 +65,11 @@ class UserClassMethods:
     @classmethod #Retrieve expenses associated with a user.
     def get_user_expenses(cls, db: Session, user_id: int):
         return db.query(Expense).filter(Expense.user_id == user_id).all()
+    
+
+    #Retrieves all users
+    def get_all_users(db: Session):
+        return db.query(User).all()
 
 
 

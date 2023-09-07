@@ -12,6 +12,7 @@ rich = "*"
 prompt-toolkit = "*"
 bcrypt = "*"
 
+
 [dev-packages]
 
 [requires]
