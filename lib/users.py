@@ -4,7 +4,6 @@ import bcrypt
 from datetime import datetime
 
 class UserClassMethods:
-
     @staticmethod
     def create_user(db, username, password):
         # Encode the password as bytes

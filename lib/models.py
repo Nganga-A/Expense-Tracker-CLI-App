@@ -16,11 +16,13 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String, unique=True, index=True)
+    password_hash = Column(String)  # Add a column for password hash
     # Establish one-to-many relationship with Expense
     expenses = relationship("Expense", back_populates="owner")
     
-    def __init__(self,username : str) :
+    def __init__(self,username : str,password_hash : str) :
         self.username = username
+        self.password_hash = password_hash
 
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username})>"

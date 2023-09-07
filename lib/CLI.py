@@ -4,11 +4,12 @@
 import click
 from sqlalchemy.orm import Session
 
-from database import create_database  # Import your database setup function
+from database import SessionLocal # Import your database setup function
 from users import UserClassMethods
 from budgets import BudgetClassMethods
 from expenses import ExpenseClassMethods
 from categories import CategoryClassMethods 
+
 
 
 
@@ -26,13 +27,35 @@ def initdb():
 
 
 # Command to create a new user
+# @expense_tracker.command()
+# @click.option('--username', prompt='Username', help='User username')
+# @click.option('--password', prompt='Password', hide_input=True, help='User password')
+# def create_user(username, password):
+#     db = Session()  # Create a SQLAlchemy session
+#     user = UserClassMethods.create_user(db, username, password)
+#     click.echo(f"User {user.username} created successfully.")
 @expense_tracker.command()
-@click.option('--username', prompt='Username', help='User username')
-@click.option('--password', prompt='Password', hide_input=True, help='User password')
-def create_user(username, password):
-    db = Session()  # Create a SQLAlchemy session
-    user = UserClassMethods.create_user(db, username, password)
-    click.echo(f"User {user.username} created successfully.")
+def create_user():
+    # Establish a database session
+    db_session = SessionLocal()
+
+    # Prompt for username and password
+    username = input("Username: ")
+    password = input("Password: ")
+
+    try:
+        # Create a new user
+        user = UserClassMethods.create_user(db_session, username, password)
+
+        # Commit the changes to the database
+        db_session.commit()
+
+        click.echo(f"User {username} created successfully.")
+    except Exception as e:
+        click.echo(f"Error creating user: {str(e)}")
+    finally:
+        # Close the session
+        db_session.close()
 
 
 # Command to create a new budget
