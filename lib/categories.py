@@ -3,8 +3,8 @@ from models import Category
 
 class CategoryClassMethods:
     @classmethod  #Create a new category
-    def create_category(cls, db: Session, name: str):
-        category = Category(name=name)
+    def create_category(cls, db: Session, name: str, user_id:int):
+        category = Category(name=name, user_id = user_id)
 
         db.add(category)
         db.commit()
@@ -22,9 +22,9 @@ class CategoryClassMethods:
         return db.query(Category).filter(Category.name == name).first()
 
 
-    @classmethod  #Retrieve all expense categories
-    def get_all_categories(cls, db: Session):
-        return db.query(Category).all()
+    @classmethod  #Retrieve all expense categories associated by user
+    def get_all_categories_by_user(cls, db: Session, user_id: int):
+        return db.query(Category).filter(Category.user_id == user_id).all()
 
 
     @classmethod  #Delete a category 

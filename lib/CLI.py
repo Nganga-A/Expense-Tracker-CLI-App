@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
 import click
-from sqlalchemy.orm import Session
+# from sqlalchemy.orm import Session
 from database import SessionLocal # Import your database setup function
 from users import UserClassMethods
 from budgets import BudgetClassMethods
 from expenses import ExpenseClassMethods
 from categories import CategoryClassMethods 
-from sqlalchemy.orm import Session
-from models import User, Budget, Expense  
+from models import User, Budget, Expense ,Category
 from datetime import datetime
 
 
@@ -176,29 +175,51 @@ def list_expenses(username):
 @click.option('--name', prompt='Category Name', help='Category Name')
 def create_category(name):
     db = SessionLocal()  # Create a SQLAlchemy session
-    category = CategoryClassMethods.create_category(db, name)
-    click.echo(f"Category {category.name} created successfully.")
-
-
-# Command to list all categories
-@expense_tracker.command()
-def list_categories():
-    db = SessionLocal()  # Create a SQLAlchemy session
-    categories = CategoryClassMethods.get_all_categories(db)
     
-    if categories:
-        click.echo("Expense Categories:")
-        for category in categories:
-            click.echo(f"ID: {category.id}, Name: {category.name}")
+    try:
+        category = CategoryClassMethods.create_category(db, name)
+
+        db.add(category)
+        db.commit()
+        click.echo(f"Category {category.name} created successfully.")
+    except Exception as e:
+        db.rollback()  # Rollback the transaction in case of an error
+        click.echo(f"Error creating category: {str(e)}")
+    finally:
+        db.close()
+
+
+
+# Command to list all categories by user
+@expense_tracker.command()
+@click.option('--user-name', prompt='User Name', help='User Name to list categories for')
+def list_categories(user_name):
+    db = SessionLocal()  # Create a SQLAlchemy session
+    
+    # Retrieve the user by name
+    user = UserClassMethods.get_user_by_username(db, user_name)
+    
+    if user:
+        user_id = user.id  # Get the user's ID
+        categories = CategoryClassMethods.get_all_categories_by_user(db, user_id)
+        
+        if categories:
+            click.echo("Expense & Budgets Categories:")
+            for category in categories:
+                click.echo(f"ID: {category.id}, Name: {category.name}")
+        else:
+            click.echo("No categories found for the user.")
     else:
-        click.echo("No categories found.")
+        click.echo(f"User with username '{user_name}' not found.")
+
+
 
 
 # Command to compare a user's budgets and expenses for all categories
 @expense_tracker.command()
 @click.option('--username', prompt='Username', help='User username')
 def compare_user_budgets_expenses(username):
-    db = Session()  # Create a SQLAlchemy session
+    db = SessionLocal()  # Create a SQLAlchemy session
     
     # Retrieve the user by username
     user = UserClassMethods.get_user_by_username(db, username)
@@ -245,7 +266,7 @@ def compare_user_budgets_expenses(username):
 @expense_tracker.command()
 @click.option('--username', prompt='Username', help='User username')
 def generate_user_report(username):
-    db = Session()  # Create a SQLAlchemy session
+    db = SessionLocal()  # Create a SQLAlchemy session
     
     # Retrieve the user by username
     user = UserClassMethods.get_user_by_username(db, username)
@@ -301,6 +322,7 @@ def generate_user_report(username):
             click.echo(f"Difference/Savings (Budget - Expenses): {difference}")
     else:
         click.echo(f"User with username '{username}' not found.")
+    db.close()
 
 
 if __name__ == '__main__':

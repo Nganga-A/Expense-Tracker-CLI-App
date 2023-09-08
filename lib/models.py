@@ -36,11 +36,15 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True, index=True ,autoincrement=True)
     name = Column(String, unique=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))  # Add this line to associate categories with users
+
+
     # Establish one-to-many relationship with Expense
     expenses = relationship("Expense", back_populates="category")
 
-    def __init__(self,name:str):
+    def __init__(self,name:str, user_id:int):
         self.name = name
+        self.user_id = user_id
 
     def __repr__(self):
         return f"<Category(id={self.id}, name={self.name})>"

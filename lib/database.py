@@ -20,3 +20,6 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 db = SessionLocal()
+
+
+# db.bind = engine
