@@ -119,6 +119,17 @@ expense_tracker/
 2. Initialize the database and create necessary tables.
 3. Run the application using the command-line interface (CLI).
 
+### Creating a User
+
+Use Command `create-user`
+```sh
+user@user-HP-ProBook-450-G5:~/Development/code/Extra/Expense-Tracker-CLI-App/lib$ create-user
+Username: John Doe
+Password: 123
+User John Doe created successfully.
+
+```
+
 
 ## Contributions
 
